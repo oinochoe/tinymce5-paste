@@ -1,0 +1,2 @@
+# TINYMCE 5.0.3
+* EDITOR 
