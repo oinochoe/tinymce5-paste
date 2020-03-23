@@ -30,8 +30,7 @@ tinymce.init({
     {
       title: "New Table",
       description: "creates a new table",
-      content:
-        '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>'
+      content: '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>'
     },
     {
       title: "Starting my story",
@@ -41,15 +40,13 @@ tinymce.init({
     {
       title: "New list with dates",
       description: "New List with dates",
-      content:
-        '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>'
+      content: '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>'
     }
   ],
   template_cdate_format: "[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]",
   template_mdate_format: "[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]",
   image_caption: false,
-  quickbars_selection_toolbar:
-    "bold italic | quicklink h2 h3 blockquote quickimage quicktable",
+  quickbars_selection_toolbar: "bold italic | quicklink h2 h3 blockquote quickimage quicktable",
   noneditable_noneditable_class: "mceNonEditable",
   toolbar_mode: "sliding",
   contextmenu: "link image imagetools table",
@@ -57,5 +54,13 @@ tinymce.init({
   powerpaste_word_import: "propmt",
   powerpaste_html_import: "propmt",
   powerpaste_allow_local_images: true,
-  paste_data_images: true
+  setup: function(editor) {
+    editor.on("submit", function(e) {
+      if (typeof editor.getBody().querySelectorAll("img")[0] !== "undefined") {
+        var onlyImage = "<img src='" + editor.getBody().querySelectorAll("img")[0].src + "' alt='image' />";
+        tinymce.activeEditor.setContent(onlyImage);
+        alert(onlyImage);
+      }
+    });
+  }
 });
