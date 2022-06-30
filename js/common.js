@@ -26,6 +26,25 @@ function customColor(editor, colorObject) {
   });
 }
 
+function backgroundTransparent(editor) {
+  var colorClassName = "back_transparent";
+  var colorName = "transparent";
+  editor.ui.registry.addButton(colorClassName, {
+    text: '<span class="' + colorClassName + '"></span>',
+    tooltip: "custom color",
+    onAction: function () {
+      tinymce.activeEditor.execCommand("mceTableApplyCellStyle", false, { "background-color": "" });
+    },
+    onSetup: function () {
+      var $dom = tinymce.dom.DomQuery;
+      var $locatorEl = $dom(editor.getContainer()).find("." + colorClassName);
+      var $buttonEl = $locatorEl.closest("button");
+      $buttonEl.css({ "background-color": "black", width: "18px", height: "18px", margin: "0 3px", cursor: "pointer", border: "1px solid #000" });
+      $locatorEl.remove();
+    },
+  });
+}
+
 tinymce.init({
   selector: "#tinymce5",
   height: 400,
@@ -33,7 +52,7 @@ tinymce.init({
     "powerpaste importcss searchreplace autosave directionality visualblocks image table charmap hr pagebreak nonbreaking anchor link media wordcount template hr code fullscreen help emoticons",
   menubar: "file edit view insert format tools table help",
   toolbar:
-    "restoredraft | undo redo | formatselect | bold italic strikethrough underline | custom_color_black custom_color_blue custom_color_white custom_color_red forecolor backcolor | numlist bullist | fontsizeselect | alignleft aligncenter alignright alignjustify | outdent indent | removeformat | emoticons | link image youtube table | audiotag iframe hr template code | fullscreen",
+    "restoredraft | undo redo | formatselect | bold italic strikethrough underline | custom_color_black custom_color_blue custom_color_white custom_color_red | back_transparent | forecolor backcolor | numlist bullist | fontsizeselect | alignleft aligncenter alignright alignjustify | outdent indent | removeformat | emoticons | link image youtube table | audiotag iframe hr template code | fullscreen",
   default_target_link: "_blank",
   contextmenu: "link searchreplace image table",
   placeholder: "Contents",
@@ -94,5 +113,6 @@ tinymce.init({
     for (var i = 0; i < customColors.length; i++) {
       customColor(ed, customColors[i]);
     }
+    backgroundTransparent(ed);
   },
 });
