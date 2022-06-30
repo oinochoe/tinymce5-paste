@@ -1,66 +1,98 @@
-/* function ajaxUpload() {
-  return Promise.resolve({
-    uploadedImageUrl: "https://test.jpg"
+function customColorList() {
+  return [
+    { name: "custom_color_black", color: "#000000" },
+    { name: "custom_color_blue", color: "#2880b9" },
+    { name: "custom_color_white", color: "#ffffff" },
+    { name: "custom_color_red", color: "#e74c3c" },
+  ];
+}
+
+function customColor(editor, colorObject) {
+  var colorClassName = colorObject["name"];
+  var colorName = colorObject["color"];
+  editor.ui.registry.addButton(colorClassName, {
+    text: '<span class="' + colorClassName + '"></span>',
+    tooltip: "custom color",
+    onAction: function () {
+      tinymce.activeEditor.execCommand("ForeColor", false, colorObject.color);
+    },
+    onSetup: function () {
+      var $dom = tinymce.dom.DomQuery;
+      var $locatorEl = $dom(editor.getContainer()).find("." + colorClassName);
+      var $buttonEl = $locatorEl.closest("button");
+      $buttonEl.css({ "background-color": colorName, width: "18px", height: "18px", margin: "0 3px", cursor: "pointer", border: "1px solid #000" });
+      $locatorEl.remove();
+    },
   });
 }
 
-images_upload_handler: function(blobInfo, success, failure) {
-  ajaxUpload(blobInfo.blob()).then(data => {
-    success(data.uploadedImageUrl);
-  });
-} */
-
 tinymce.init({
   selector: "#tinymce5",
+  height: 400,
   plugins:
-    "print preview powerpaste importcss searchreplace autolink autosave directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons",
+    "powerpaste importcss searchreplace autosave directionality visualblocks image table charmap hr pagebreak nonbreaking anchor link media wordcount template hr code fullscreen help emoticons",
   menubar: "file edit view insert format tools table help",
   toolbar:
-    "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview print | insertfile image media template link anchor codesample | ltr rtl",
+    "restoredraft | undo redo | formatselect | bold italic strikethrough underline | custom_color_black custom_color_blue custom_color_white custom_color_red forecolor backcolor | numlist bullist | fontsizeselect | alignleft aligncenter alignright alignjustify | outdent indent | removeformat | emoticons | link image youtube table | audiotag iframe hr template code | fullscreen",
+  default_target_link: "_blank",
+  contextmenu: "link searchreplace image table",
+  placeholder: "Contents",
   toolbar_sticky: true,
-  autosave_ask_before_unload: true,
+  autosave_ask_before_unload: false,
   autosave_interval: "30s",
   autosave_prefix: "{path}{query}-{id}-",
-  autosave_restore_when_empty: true,
+  autosave_restore_when_empty: false,
   autosave_retention: "20m",
-  image_advtab: true,
-  importcss_append: true,
-  height: 800,
-  templates: [
-    {
-      title: "New Table",
-      description: "creates a new table",
-      content: '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>'
-    },
-    {
-      title: "Starting my story",
-      description: "A cure for writers block",
-      content: "Once upon a time..."
-    },
-    {
-      title: "New list with dates",
-      description: "New List with dates",
-      content: '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>'
-    }
-  ],
-  template_cdate_format: "[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]",
-  template_mdate_format: "[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]",
-  image_caption: false,
-  quickbars_selection_toolbar: "bold italic | quicklink h2 h3 blockquote quickimage quicktable",
-  noneditable_noneditable_class: "mceNonEditable",
-  toolbar_mode: "sliding",
-  contextmenu: "link image imagetools table",
-  // powerpaste
+  media_dimensions: false,
+  media_poster: false,
+  indentation: "3rem",
+  body_class: "contents_area",
+  object_resizing: ":not(table)",
+  content_css: [""],
+  table_default_attributes: {
+    class: "tableLayoutNormal",
+  },
+  extended_valid_elements: "i[*],audio[controls|controlslist]",
+  entity_encoding: "raw",
+  force_br_newlines: true,
+  force_p_newlines: false,
+  forced_root_block: "div",
   powerpaste_word_import: "propmt",
   powerpaste_html_import: "propmt",
-  powerpaste_allow_local_images: true,
-  setup: function(editor) {
-    editor.on("submit", function(e) {
-      if (typeof editor.getBody().querySelectorAll("img")[0] !== "undefined") {
-        var onlyImage = "<img src='" + editor.getBody().querySelectorAll("img")[0].src + "' alt='image' />";
-        tinymce.activeEditor.setContent(onlyImage);
-        alert(onlyImage);
+  powerpaste_allow_local_images: false,
+  paste_data_images: true,
+  paste_preprocess: function (plugin, args) {
+    args.content = args.content
+      .replace(/font-(family|size):.*?;/g, "")
+      .replace(/<iframe.*?<\/iframe>/g, "")
+      .replace(/width:+(\s)*0px/g, "")
+      .replace(/<form.*?<\/form>/g, "");
+  },
+  fontsize_formats: "10px 11px 12px 13px 14px 15px 16px 17px 18px 19px 20px 24px 36px 48px",
+  setup: function (ed) {
+    ed.on("FullscreenStateChanged", function (e) {
+      if (!$(".modal").is(":visible")) return;
+      var $modalDialog = $(".modal");
+      if (e.state) {
+        $modalDialog.addClass("fullscreen");
+      } else {
+        $modalDialog.removeClass("fullscreen");
       }
     });
-  }
+    ed.on("keydown", function (event) {
+      if (9 !== event.keyCode) {
+        return;
+      }
+      if (event.shiftKey) {
+        ed.execCommand("Outdent");
+      } else {
+        ed.execCommand("Indent");
+      }
+      event.preventDefault();
+    });
+    var customColors = customColorList();
+    for (var i = 0; i < customColors.length; i++) {
+      customColor(ed, customColors[i]);
+    }
+  },
 });
